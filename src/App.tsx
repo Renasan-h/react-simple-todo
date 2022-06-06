@@ -1,26 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {ChangeEvent, ReactHTMLElement, useState, useCallback} from 'react'
+import {Progress , Input, Text, List, ListItem, Button, Box, Container} from '@chakra-ui/react'
+import { MdDeleteForever } from "react-icons/md"
+import TodoList from './component/TodoList'
+import {useTodo} from './Hooks/useTodo'
+import ToDoPercentage from './component/ToDoPercentage'
+import { Todo } from './types/Todo'
 
-function App() {
+const App = () => {
+
+  const {todos, AddTodo, DeleteTodo, UpdateTodoisCompleate } = useTodo();
+  const [contents, setContents] = useState<string>('')
+
+  const ChangeHandler = (e:ChangeEvent<HTMLInputElement>) => {
+    setContents(e.target.value)
+  }
+
+  const OnClickAddTodo = () =>{
+    if(contents){
+      AddTodo({taskNumber: todos.length + 1, todo:contents, isCompleate:false} as Todo)
+      setContents('')
+    }
+  }
+
+  const deleteHandler = useCallback((index:number) => {
+    DeleteTodo(index)
+  }, [todos])
+
+  const updateHandler = useCallback((index: number, e:ChangeEvent<HTMLInputElement>) =>{
+    UpdateTodoisCompleate(index, e)
+  }, [todos])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Container width="100%" display="contents">
+      <Box mt="10px" pl="20%" alignItems="center" width="80%" display="flex">
+        <Input onChange={ChangeHandler} value={contents}/><Button colorScheme={'blue'} onClick={OnClickAddTodo} >Entry</Button>
+      </Box>
+      <ToDoPercentage todos={todos} />
+      <TodoList todos={todos} DeleteHandler={deleteHandler} UpdateHandler={updateHandler}/>
+    </Container>
+  )
 }
+export default App
 
-export default App;
+// hidden={todo.isCompleate} or <Text as="del"></Text>
+//<TodoList todoList={todos} deleteHandler={DeleteTodo}/>
